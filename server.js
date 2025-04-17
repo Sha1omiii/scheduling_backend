@@ -1,11 +1,14 @@
 const express = require('express');
 const app = express();
 require('dotenv').config();
+const bodyparser = require('body-parser');
+
+
 const { Pool } = require('pg');
 const cors = require('cors');
 const PORT = 3000 || process.env.PORT;
 
-app.use(express.json());
+app.use(bodyparser.urlencoded());
 app.use(cors());
 
 const DBConfig = require('./dbConfig.js');
@@ -100,7 +103,7 @@ app.get('/operator/:id', async (req, res) => {
     const id = parseInt(req.params.id);
     const result = await client.query("SELECT * FROM operators WHERE operator_id = $1", [id]);
 
-    res.json({ results: result.rows });
+    res.json(result.rows);
   } catch (error) {
     console.log(`error encountered while looking an operator by an id of: ${id}, error --- ${error}`)
   }
@@ -117,9 +120,7 @@ app.get('/operator', async (_, res) => {
   try {
     console.log('connected to db');
     const result = await client.query("SELECT * FROM operators");
-    res.json({ operators: result.rows });
-    console.log(result.rows)
-    await client.end();
+    res.json(result.rows);
   } catch (error) {
     res.json({ message: error.message });
   } finally {
