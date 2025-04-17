@@ -8,7 +8,8 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const PORT = 3000 || process.env.PORT;
 
-app.use(bodyparser.urlencoded());
+app.use(bodyparser.urlencoded({ extended: true }));
+app.use(bodyparser.json())
 app.use(cors());
 
 const DBConfig = require('./dbConfig.js');
@@ -79,13 +80,13 @@ app.put('/operator/:id', async (req, res) => {
 })
 
 //add a new user 
-app.post('/addOperator', async (req, res) => {
+app.post('/operator/addOperator', async (req, res) => {
   const client = await pool.connect();
   try {
     const { operator_name, email, role, startDate } = req.body;
     const result = await client.query('INSERT INTO operators (operator_name, email, role, startDate) VALUES ($1, $2, $3, $4) RETURNING *', [operator_name, email, role, startDate]);
 
-    res.json({ addedOperator: result.rows[0].id })
+    res.json(result.rows[0])
 
   } catch (error) {
     console.log(`error encountered while adding a new operator: ${error} `);
